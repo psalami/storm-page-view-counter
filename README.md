@@ -29,7 +29,7 @@ in PageCountTopology.topology().
 ## Configuration
 * Your topology will automatically end after a pre-defined number of seconds. This is useful during testing. This value can be adjusted by updating the runtimeInSeconds value in PageCountTopology.
 
-* By default, the Bolt will convert all URLs to pretty page names using a local regex mapping file. The location of this file can be configured in PrettyPageNameBolt by changing the values of MAPPING_FILE_DIR and MAPPING_FILE_NAME.
+* By default, the Bolt will convert all URLs to pretty page names using a local regex mapping file. The location of this file can be configured in PrettyPageNameBolt by changing the values of MAPPING_FILE_DIR and MAPPING_FILE_NAME. By default, the file is called pretty-page-names.txt and is located in the root directory of this project. You can edit this file with your own regular expressions.
 * By default, the Bolt will count the number of page views and emit the total count once per hour and then reset the counter. This interval can be configured in PageViewAggregatorBolt by changing the DEFAULT_EMIT_FREQUENCY_IN_SECONDS parameter.
 * You will want to review and possibly edit the additional settings defined in the PageCountTopology constructor:
     * kafkaZk* - update these parameters based on you Kafka ZooKeeper config. The defaults assume that Kafka ZK is running locally, which is useful for testing. 
@@ -37,4 +37,8 @@ in PageCountTopology.topology().
     * kafkaTopic - the name of the Kafka topic that Storm should subscribe to. This is the topic to which your appservers will write the log messages.
 
 
-The output is emitted to the console (along with various debugging statements). The topology can be modified to send the output to a more meaningful location.
+The output is emitted to the console (along with various debugging statements). The topology can be modified to send the output to a more meaningful location. The logs will show a record of each page view that is processed, as the page views are being sent by the spout. However, every DEFAULT_EMIT_FREQUENCY_IN_SECONDS seconds, you will see a line like the following in stdout:
+````
+Processing received message source: aggregate:2, stream: default, id: {}, ["My Page", 2013-09-16, 16:44, 8]
+````
+which contains the aggregate number of pageviews per pretty page name for that time interval.

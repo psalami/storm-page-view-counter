@@ -1,0 +1,2 @@
+/my/page/.* => "My Page"
+/other/page/.* => "Other Page"

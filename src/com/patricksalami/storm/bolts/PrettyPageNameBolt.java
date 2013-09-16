@@ -23,10 +23,13 @@ import backtype.storm.tuple.Values;
 
 public class PrettyPageNameBolt extends BaseRichBolt{
 	
+	public static final String MAPPING_FILE_DIR = ".";
+	public static final String MAPPING_FILE_NAME = "pretty-page-names.txt";
 	private OutputCollector collector;
 	private HashMap<String,String> pageNames = new HashMap<String,String>();
 	
 	public static Logger LOG = LoggerFactory.getLogger(PrettyPageNameBolt.class);
+	
 	
 
 	/**
@@ -34,7 +37,7 @@ public class PrettyPageNameBolt extends BaseRichBolt{
 	 */
 	public void prepare(Map stormConf, TopologyContext context,
 			OutputCollector collector) {
-		Path path = FileSystems.getDefault().getPath("/tmp", "pretty-page-names.txt");
+		Path path = FileSystems.getDefault().getPath(MAPPING_FILE_DIR, MAPPING_FILE_NAME);
 		List<String> lines = null;
 		try{
 			lines = Files.readAllLines(path, Charset.defaultCharset() );
@@ -61,7 +64,6 @@ public class PrettyPageNameBolt extends BaseRichBolt{
 	 */
 	public void execute(Tuple input) {
 		String pageName = input.getStringByField("word");
-		LOG.warn("pageName: " + pageName);
 		collector.ack(input);
 		boolean matched = false;
 		for(String regex : pageNames.keySet()){

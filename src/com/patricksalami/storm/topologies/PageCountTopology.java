@@ -26,8 +26,14 @@ public class PageCountTopology {
 	private final TopologyBuilder builder;
 	private final Config topologyConfig;
 	private final String topologyName;
+	private final String kafkaTopic; // topic to read from
+	private final String kafkaZkHost;
+	private final int kafkaZkPort;
+	private final String kafkaZkPath; // the root path in Zookeeper for Kafka
+	private final String kafkaZkStormPath; // the root path in Zookeeper for the spout to store the consumer offsets
+	private final String kafkaZkConsumerId; // an id for this consumer for storing the consumer offsets in Zookeeper
 	private final int runtimeInSeconds;
-	private final int emitFrequencyInSeconds;
+	
 	
 	public static Logger LOG = LoggerFactory.getLogger(PageCountTopology.class);
 
@@ -36,7 +42,12 @@ public class PageCountTopology {
 		topologyConfig = config();
 		topologyName = "PageViewCount";
 		runtimeInSeconds = 1000;
-		emitFrequencyInSeconds = 150;
+		kafkaZkHost = "localhost";
+		kafkaZkPort = 2181;
+		kafkaZkPath = "/brokers";
+		kafkaTopic = "pageviews"; 
+		kafkaZkStormPath = "/kafkastorm";
+		kafkaZkConsumerId = "aggregator";
 	}
 
 	private TopologyBuilder topology() throws Exception {
@@ -44,10 +55,10 @@ public class PageCountTopology {
 		TopologyBuilder builder = new TopologyBuilder();
 		
 		//set up Kafka Spout
-		KafkaConfig.ZkHosts zkh = new KafkaConfig.ZkHosts("localhost:2181", "/brokers");
+		KafkaConfig.ZkHosts zkh = new KafkaConfig.ZkHosts(kafkaZkHost + ":" + kafkaZkPort, kafkaZkPath);
 		SpoutConfig kafkaSpoutConfig = new SpoutConfig(
-				zkh, "test",
-				"/kafkastorm", "aggregator");
+				zkh, kafkaTopic,
+				kafkaZkStormPath, kafkaZkConsumerId);
 		kafkaSpoutConfig.scheme = new SchemeAsMultiScheme(new StringScheme());
 		KafkaSpout kafkaSpout = new KafkaSpout(kafkaSpoutConfig);
 		
