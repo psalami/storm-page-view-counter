@@ -32,6 +32,7 @@ in PageCountTopology.topology().
 * By default, the Bolt will convert all URLs to pretty page names using a local regex mapping file. The location of this file can be configured in PrettyPageNameBolt by changing the values of MAPPING_FILE_DIR and MAPPING_FILE_NAME. By default, the file is called pretty-page-names.txt and is located in the root directory of this project. You can edit this file with your own regular expressions.
 * By default, the Bolt will count the number of page views and emit the total count once per hour and then reset the counter. This interval can be configured in PageViewAggregatorBolt by changing the DEFAULT_EMIT_FREQUENCY_IN_SECONDS parameter.
 * You will want to review and possibly edit the additional settings defined in the PageCountTopology constructor:
+    * parallelism - adjust this value to indicate how many bolts should be created to read the data. If throughput is high, this number should be increased based on the capacity of your cluster. The default is 1, which will work well for testing locally.
     * kafkaZk* - update these parameters based on you Kafka ZooKeeper config. The defaults assume that Kafka ZK is running locally, which is useful for testing. 
     * You can also adjust the ZK path where Kafka stores its data (kafkaZkPath), as well as the ZK path where Storm can store offset metadata (kafkaZkStormPath). The default values will probably work here.
     * kafkaTopic - the name of the Kafka topic that Storm should subscribe to. This is the topic to which your appservers will write the log messages.

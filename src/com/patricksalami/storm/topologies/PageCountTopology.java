@@ -33,6 +33,7 @@ public class PageCountTopology {
 	private final String kafkaZkStormPath; // the root path in Zookeeper for the spout to store the consumer offsets
 	private final String kafkaZkConsumerId; // an id for this consumer for storing the consumer offsets in Zookeeper
 	private final int runtimeInSeconds;
+	private final int parallelism;
 	
 	
 	public static Logger LOG = LoggerFactory.getLogger(PageCountTopology.class);
@@ -48,6 +49,7 @@ public class PageCountTopology {
 		kafkaTopic = "pageviews"; 
 		kafkaZkStormPath = "/kafkastorm";
 		kafkaZkConsumerId = "aggregator";
+		parallelism = 1;
 	}
 
 	private TopologyBuilder topology() throws Exception {
@@ -66,9 +68,9 @@ public class PageCountTopology {
 		//builder.setSpout("spout", kafkaSpout, 1);
 		builder.setSpout("spout", new TestUrlSpout(), 1);
 		
-		builder.setBolt("makePretty", new PrettyPageNameBolt(), 1)
+		builder.setBolt("makePretty", new PrettyPageNameBolt(), parallelism)
 				.shuffleGrouping("spout");
-		builder.setBolt("aggregate", new PageViewAggregatorBolt(), 1)
+		builder.setBolt("aggregate", new PageViewAggregatorBolt(), parallelism)
 				.fieldsGrouping("makePretty", new Fields("pageName"));
 
 		builder.setBolt("print", new PrinterBolt(), 1).shuffleGrouping(
